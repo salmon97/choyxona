@@ -1,0 +1,1 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([[6],{RXBc:function(n,t,a){"use strict";a.r(t);var e=a("q1tI"),u=a.n(e),c=(a("q4sD"),a("3a4m")),o=a.n(c);t["default"]=function(){return u.a.createElement("div",null,o.a.push("/today"))}}}]);
