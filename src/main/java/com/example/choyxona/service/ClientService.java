@@ -45,22 +45,25 @@ public class ClientService {
     Bot bot;
 
     public ApiResponse registerClient(ReqClient reqClient) {
-        Client client = new Client();
-        client.setRoom(roomRepository.getOne(reqClient.getRoomId()));
-        if (reqClient.getDayId() != null) {
-            client.setDay(dayRepository.getOne(reqClient.getDayId()));
-        } else {
-            LocalDate t = LocalDate.now();
-            int yearNum = t.getYear();
-            int monthNum = t.getMonth().getValue();
-            int dayNum = t.getDayOfMonth();
-            client.setDay(dayRepository.findByDayNumAndMonth_MonthNumAndMonth_Year(dayNum, monthNum, yearNum));
+        if (reqClient.getTelNum() != null && reqClient.getName() != null) {
+            Client client = new Client();
+            client.setRoom(roomRepository.getOne(reqClient.getRoomId()));
+            if (reqClient.getDayId() != null) {
+                client.setDay(dayRepository.getOne(reqClient.getDayId()));
+            } else {
+                LocalDate t = LocalDate.now();
+                int yearNum = t.getYear();
+                int monthNum = t.getMonth().getValue();
+                int dayNum = t.getDayOfMonth();
+                client.setDay(dayRepository.findByDayNumAndMonth_MonthNumAndMonth_Year(dayNum, monthNum, yearNum));
+            }
+            client.setName(reqClient.getName());
+            client.setTelName(reqClient.getTelNum());
+            client.setStatus(Status.WEB);
+            clientRepository.save(client);
+            return new ApiResponse("ok", true);
         }
-        client.setName(reqClient.getName());
-        client.setTelName(reqClient.getName());
-        client.setStatus(Status.WEB);
-        clientRepository.save(client);
-        return new ApiResponse("ok", true);
+        return new ApiResponse("ok", false);
     }
 
     public ApiResponse sendCheck(UUID clientId) throws TelegramApiException {
