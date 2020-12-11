@@ -12,6 +12,8 @@ public interface ClientRepository extends JpaRepository<Client, UUID> {
 
     List<Client> findAllByDay_Id(Long day_id);
 
+    List<Client> findAllByDay_IdAndRoom_Id(Long day_id, Long room_id);
+
     boolean existsByChatIdAndStatus(Long chatId, Status status);
 
     @Query(value = "select * from client where chat_id = :chatId and status = :statusT order by register_at desc limit 1", nativeQuery = true)

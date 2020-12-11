@@ -3,12 +3,12 @@ package com.example.choyxona.controller;
 import com.example.choyxona.payload.ApiResponse;
 import com.example.choyxona.payload.ReqClient;
 import com.example.choyxona.payload.ReqProduct;
+import com.example.choyxona.payload.ReqResServiceClient;
 import com.example.choyxona.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.UUID;
 
@@ -26,27 +26,37 @@ public class ClientController {
     }
 
     @PostMapping("/sendCheck/{id}")
-    public HttpEntity<?> sendCheck(@PathVariable UUID id) throws TelegramApiException {
-        ApiResponse apiResponse = clientService.sendCheck(id);
+    public HttpEntity<?> sendCheck(@PathVariable UUID id) {
+        clientService.sendCheck(id);
         return ResponseEntity.ok("ok");
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public HttpEntity<?> delete(@PathVariable UUID id) {
         return ResponseEntity.ok(clientService.deleteClient(id));
     }
 
-    @GetMapping("getClient/{id}")
-    public HttpEntity<?> getClient(@PathVariable UUID id) {
-        return ResponseEntity.ok(clientService.resClient(id));
+    // get rooms clients by dayId and RoomId
+    @GetMapping("/getClient")
+    public HttpEntity<?> getClient(@RequestParam(value = "dayId") long dayId, @RequestParam(value = "roomId") long roomId) {
+        return ResponseEntity.ok(clientService.resClient(dayId, roomId));
     }
 
-    @GetMapping("getProducts/{id}")
-    public HttpEntity<?> getProducts(@PathVariable UUID id) {
-        return ResponseEntity.ok(clientService.resProductClient(id));
+    //add and edit service client
+    @PostMapping("/serviceClient")
+    public HttpEntity<?> addServiceClient(@RequestBody ReqResServiceClient reqResServiceClient) {
+        clientService.addAndEditSerViceClient(reqResServiceClient);
+        return ResponseEntity.ok("ok");
     }
 
-    @PostMapping("addProduct")
+    //delete service client
+    @DeleteMapping("/serviceClient/{id}")
+    public HttpEntity<?> deleteServiceCl(@PathVariable UUID id) {
+        clientService.deleteServiceClient(id);
+        return ResponseEntity.ok("ok");
+    }
+
+    @PostMapping("/addProduct")
     public HttpEntity<?> addProduct(@RequestBody ReqProduct reqProduct) {
         if (reqProduct.getProductClientId() != null) {
             return ResponseEntity.ok(clientService.editProduct(reqProduct));
@@ -61,10 +71,10 @@ public class ClientController {
     }
 
     //Product kg client start
-    @GetMapping("getProductsKg/{id}")
-    public HttpEntity<?> getProductsKg(@PathVariable UUID id) {
-        return ResponseEntity.ok(clientService.resProductKgClient(id));
-    }
+//    @GetMapping("getProductsKg/{id}")
+//    public HttpEntity<?> getProductsKg(@PathVariable UUID id) {
+//        return ResponseEntity.ok(clientService.resProductKgClient(id));
+//    }
 
     @PostMapping("addProductKg")
     public HttpEntity<?> addProductKg(@RequestBody ReqProduct reqProduct) {

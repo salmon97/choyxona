@@ -3,6 +3,7 @@ package com.example.choyxona.service;
 import com.example.choyxona.entity.Client;
 import com.example.choyxona.entity.Day;
 import com.example.choyxona.entity.Room;
+import com.example.choyxona.entity.enums.Status;
 import com.example.choyxona.payload.ApiResponse;
 import com.example.choyxona.payload.ResRoom;
 import com.example.choyxona.repository.ClientRepository;
@@ -45,12 +46,12 @@ public class RoomService {
         List<Client> allByDay_id = clientRepository.findAllByDay_Id(dayId);
         boolean a;
 
-        String m = day.getMonth().getMonthNum() < 10 ? "-0" + day.getMonth().getMonthNum() : "-"+day.getMonth().getMonthNum().toString();
-        String d = day.getDayNum() < 10 ? "-0" + day.getDayNum() :"-"+ day.getDayNum().toString();
+        String m = day.getMonth().getMonthNum() < 10 ? "-0" + day.getMonth().getMonthNum() : "-" + day.getMonth().getMonthNum().toString();
+        String d = day.getDayNum() < 10 ? "-0" + day.getDayNum() : "-" + day.getDayNum().toString();
         for (Room room : all) {
             a = true;
             for (Client client : allByDay_id) {
-                if (Objects.equals(room.getId(), client.getRoom().getId())) {
+                if (Objects.equals(room.getId(), client.getRoom().getId()) && client.getStatus() != Status.FINISHED) {
                     a = false;
                     resRooms.add(new ResRoom(client.getId(), room.getId(), dayId, "band", room.getName(), room.getCapacity(),
                             day.getMonth().getYear() + m + d)

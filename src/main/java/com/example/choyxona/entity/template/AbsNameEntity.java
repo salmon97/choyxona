@@ -14,5 +14,4 @@ public abstract class AbsNameEntity {
 
     @Column(nullable = false)
     private String name;
-
 }

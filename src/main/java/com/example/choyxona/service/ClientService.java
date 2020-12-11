@@ -1,6 +1,5 @@
 package com.example.choyxona.service;
 
-import com.example.choyxona.bot.Bot;
 import com.example.choyxona.entity.*;
 import com.example.choyxona.entity.enums.Status;
 import com.example.choyxona.payload.*;
@@ -8,14 +7,13 @@ import com.example.choyxona.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.ParseMode;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ClientService {
@@ -42,7 +40,40 @@ public class ClientService {
     DayRepository dayRepository;
 
     @Autowired
-    Bot bot;
+    ServiceClientRepository serviceClientRepository;
+
+    //add service client client
+    public void addAndEditSerViceClient(ReqResServiceClient reqResServiceClient) {
+        ServiceClient serviceClient = new ServiceClient();
+        if (reqResServiceClient.getId() != null) {
+            serviceClient = serviceClientRepository.findById(reqResServiceClient.getId()).orElseThrow(() -> new ResourceNotFoundException("getServiceClient"));
+        }
+        serviceClient.setClient(clientRepository.getOne(reqResServiceClient.getClientId()));
+        serviceClient.setDefinition(reqResServiceClient.getDefinition());
+        serviceClient.setPrice(reqResServiceClient.getPrice());
+        serviceClient.setCost(reqResServiceClient.getCost());
+        serviceClientRepository.save(serviceClient);
+    }
+
+    //get serviceClients by clientId
+    private List<ReqResServiceClient> resServiceClients(UUID clientId) {
+        List<ServiceClient> serviceClients = serviceClientRepository.findAllByClient_Id(clientId);
+        return serviceClients.stream().map(serviceClient -> new ReqResServiceClient(
+                serviceClient.getId(),
+                serviceClient.getDefinition(),
+                serviceClient.getPrice()
+        )).collect(Collectors.toList());
+    }
+
+    public void deleteServiceClient(UUID id) {
+        serviceClientRepository.deleteById(id);
+    }
+
+    public void sendCheck(UUID clientId) {
+        Client client = clientRepository.findById(clientId).orElseThrow(() -> new ResourceNotFoundException("getClient"));
+        client.setStatus(Status.FINISHED);
+        clientRepository.save(client);
+    }
 
     public ApiResponse registerClient(ReqClient reqClient) {
         if (reqClient.getTelNum() != null && reqClient.getName() != null) {
@@ -64,34 +95,6 @@ public class ClientService {
             return new ApiResponse("ok", true);
         }
         return new ApiResponse("ok", false);
-    }
-
-    public ApiResponse sendCheck(UUID clientId) throws TelegramApiException {
-        Client client = clientRepository.findById(clientId).orElseThrow(() -> new ResourceNotFoundException("getClient"));
-        if (client.getChatId() == null) {
-            return new ApiResponse("chek jo'nata olmaysiz", false);
-        }
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(client.getChatId());
-        sendMessage.setParseMode(ParseMode.MARKDOWN);
-        List<ResPro_Client> byGroupedProClient = productClientRepository.getByGroupedPro(clientId);
-        List<ResPro_Client> grouped = productKgClientRepository.getGrouped(clientId);
-        StringBuilder text = new StringBuilder("sizning chekingiz \uD83E\uDDFE \n");
-        double sum = 0;
-        for (ResPro_Client resPro_client : byGroupedProClient) {
-            text.append(resPro_client.getName()).append(" ").append(resPro_client.getAmount()).append("-ta ").append(resPro_client.getSumma()).append("-sum \n");
-            sum += resPro_client.getSumma();
-        }
-        for (ResPro_Client resPro_client : grouped) {
-            text.append(resPro_client.getName()).append(" ").append(resPro_client.getAmount()).append("-gr ").append(resPro_client.getSumma()).append("-sum \n");
-            sum += resPro_client.getSumma();
-        }
-        text.append("\uD83D\uDCB0 jami ").append(sum).append(" - sum");
-        sendMessage.setText(text.toString());
-        client.setStatus(Status.FINISHED);
-        clientRepository.save(client);
-        bot.execute(sendMessage);
-        return new ApiResponse("jo'natildi", true);
     }
 
     //product client kg add
@@ -133,7 +136,7 @@ public class ClientService {
     }
 
     //res list product kg client
-    public ApiResponse resProductKgClient(UUID client_id) {
+    public List<ResProduct> resProductKgClient(UUID client_id) {
         List<ProductKgClient> allByClient_id = productKgClientRepository.findAllByClient_Id(client_id);
         List<ResProduct> resProducts = new ArrayList<>();
         for (ProductKgClient productKgClient : allByClient_id) {
@@ -145,7 +148,7 @@ public class ClientService {
                     productKgClient.getKg()
             ));
         }
-        return new ApiResponse("ok", true, resProducts, allByClient_id.size() > 0 ? productKgClientRepository.getTotalSum(allByClient_id.get(0).getClient().getId()) : 0);
+        return resProducts;
     }
 
     // delete product kg client
@@ -193,7 +196,7 @@ public class ClientService {
     }
 
     //res list product client
-    public ApiResponse resProductClient(UUID clientId) {
+    public List<ResProduct> resProductClient(UUID clientId) {
         List<ProductClient> productClients = productClientRepository.findAllByClient_Id(clientId);
         List<ResProduct> resProducts = new ArrayList<>();
         for (ProductClient productClient : productClients) {
@@ -206,7 +209,7 @@ public class ClientService {
             ));
         }
 
-        return new ApiResponse("ok", true, resProducts, productClients.size() > 0 ? productClientRepository.getTotalSum(productClients.get(0).getClient().getId()) : 0);
+        return resProducts;
     }
 
     //delete product client
@@ -222,16 +225,54 @@ public class ClientService {
     }
 
     //res Client
-    public ApiResponse resClient(UUID uuid) {
-        Client client = clientRepository.findById(uuid).orElseThrow(() -> new ResourceNotFoundException("getClient"));
-        return new ApiResponse("ok", true, new ResClient(
+    public ApiResponse resClient(long dayId, long roomId) {
+        List<Client> allByDay_id = clientRepository.findAllByDay_IdAndRoom_Id(dayId, roomId);
+        List<ResClient> collect = allByDay_id.stream().map(client -> new ResClient(
                 client.getId(),
                 client.getRegisterAt(),
                 client.getName(),
                 client.getTelName(),
                 client.getStatus().name(),
                 client.getDay().getMonth().getMonthNum() + "-" + client.getDay().getDayNum() + "-" + client.getDay().getMonth().getYear(),
-                client.getChatId()
-        ));
+                client.getChatId(),
+                resProductClient(client.getId()),
+                productClientRepository.getTotalSum(client.getId()),
+                resProductKgClient(client.getId()),
+                productKgClientRepository.getTotalSum(client.getId()),
+                resServiceClients(client.getId()),
+                serviceClientRepository.getTotalSumService(client.getId())
+        )).collect(Collectors.toList());
+        Collections.reverse(collect);
+        return new ApiResponse("ok", true, collect);
     }
+
 }
+
+
+//    public ApiResponse sendCheck(UUID clientId) throws TelegramApiException {
+//        Client client = clientRepository.findById(clientId).orElseThrow(() -> new ResourceNotFoundException("getClient"));
+//        if (client.getChatId() == null) {
+//            return new ApiResponse("chek jo'nata olmaysiz", false);
+//        }
+//        SendMessage sendMessage = new SendMessage();
+//        sendMessage.setChatId(client.getChatId());
+//        sendMessage.setParseMode(ParseMode.MARKDOWN);
+//        List<ResPro_Client> byGroupedProClient = productClientRepository.getByGroupedPro(clientId);
+//        List<ResPro_Client> grouped = productKgClientRepository.getGrouped(clientId);
+//        StringBuilder text = new StringBuilder("sizning chekingiz \uD83E\uDDFE \n");
+//        double sum = 0;
+//        for (ResPro_Client resPro_client : byGroupedProClient) {
+//            text.append(resPro_client.getName()).append(" ").append(resPro_client.getAmount()).append("-ta ").append(resPro_client.getSumma()).append("-sum \n");
+//            sum += resPro_client.getSumma();
+//        }
+//        for (ResPro_Client resPro_client : grouped) {
+//            text.append(resPro_client.getName()).append(" ").append(resPro_client.getAmount()).append("-gr ").append(resPro_client.getSumma()).append("-sum \n");
+//            sum += resPro_client.getSumma();
+//        }
+//        text.append("\uD83D\uDCB0 jami ").append(sum).append(" - sum");
+//        sendMessage.setText(text.toString());
+//        client.setStatus(Status.FINISHED);
+//        clientRepository.save(client);
+//        bot.execute(sendMessage);
+//        return new ApiResponse("jo'natildi", true);
+//    }

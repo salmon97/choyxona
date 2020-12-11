@@ -37,19 +37,24 @@ public class MonthService {
     final
     ProductKgClientRepository productKgClientRepository;
 
-    public MonthService(MonthRepository monthRepository, DayRepository dayRepository, MonthTempRepository tempRepository, ProductClientRepository productClientRepository, ProductKgClientRepository productKgClientRepository) {
+    final
+    ServiceClientRepository serviceClientRepository;
+
+    public MonthService(MonthRepository monthRepository, DayRepository dayRepository, MonthTempRepository tempRepository, ProductClientRepository productClientRepository, ProductKgClientRepository productKgClientRepository, ServiceClientRepository serviceClientRepository) {
         this.monthRepository = monthRepository;
         this.dayRepository = dayRepository;
         this.tempRepository = tempRepository;
         this.productClientRepository = productClientRepository;
         this.productKgClientRepository = productKgClientRepository;
+        this.serviceClientRepository = serviceClientRepository;
     }
 
 
-    public ApiResponse infoProClientMonth(int monthId) {
+    public ApiResponse infoProClientMonth(long monthId) {
         List<ResPro_Client> prClientInfoMonth = productClientRepository.getPrClientInfoMonth(monthId);
         List<ResPro_Client> prKgClientInfoMonth = productKgClientRepository.getPrClientInfoMonth(monthId);
-        Object[] objects = {prClientInfoMonth, prKgClientInfoMonth};
+        ResPro_Client resPro_client = serviceClientRepository.totalSumServiceMonth(monthId);
+        Object[] objects = {prClientInfoMonth, prKgClientInfoMonth, resPro_client};
         return new ApiResponse("ok", true, objects);
     }
 

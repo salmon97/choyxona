@@ -15,4 +15,5 @@ public class ResProduct {
     private String name;
     private double balance;
     private int amount;
+//    private Double totalSum;
 }

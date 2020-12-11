@@ -2,7 +2,10 @@ package com.example.choyxona.entity;
 
 import com.example.choyxona.entity.enums.Status;
 import com.example.choyxona.entity.template.AbsEntity;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
@@ -32,4 +35,7 @@ public class Client extends AbsEntity {
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductKgClient> productKgClients;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ServiceClient> serviceClients;
 }

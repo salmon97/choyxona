@@ -21,9 +21,9 @@ public interface ProductClientRepository extends JpaRepository<ProductClient, UU
 
     @Query(value = "select pr.name , sum(pc.piece) as amount , sum(pc.sum) as summa, sum(pc.cost) as costs from day d, client cl, product pr, product_client pc " +
             "where d.month_id = :monthId and d.id = cl.day_id and pr.id = pc.product_id and pc.client_id = cl.id group by pr.name", nativeQuery = true)
-    List<ResPro_Client> getPrClientInfoMonth(int monthId);
+    List<ResPro_Client> getPrClientInfoMonth(long monthId);
 
     @Query(value = "select pr.name , sum(pc.piece) as amount , sum(pc.sum) as summa, sum(pc.cost) as costs from day d, client cl, product pr, product_client pc " +
             "where d.id = :dayId and d.id = cl.day_id and pr.id = pc.product_id and pc.client_id = cl.id group by pr.name", nativeQuery = true)
-    List<ResPro_Client> getPrClientInfoDay(int dayId);
+    List<ResPro_Client> getPrClientInfoDay(long dayId);
 }

@@ -2,10 +2,13 @@ package com.example.choyxona.entity;
 
 import com.example.choyxona.entity.template.AbsNameEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -21,4 +24,7 @@ public class Day extends AbsNameEntity {
     private String nameUz;
 
     private Integer dayNum;
+
+    @OneToMany(mappedBy = "day", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    List<Client> clients;
 }
