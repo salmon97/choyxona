@@ -17,7 +17,7 @@ public class Test {
     }
 
     public void getEmployees() {
-        final String uri = "http://localhost:8080/api/hi";
+        final String uri = "https://choyxana.herokuapp.com/api/hi";
         RestTemplate restTemplate = new RestTemplate();
         String result = restTemplate.getForObject(uri, String.class);
         System.out.println(result);
