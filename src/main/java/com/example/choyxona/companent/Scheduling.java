@@ -28,8 +28,8 @@ public class Scheduling {
 //        clientBotService.sendMessageTomorrow();
 //    }
 
-    @Scheduled(fixedRate = 25 * 60  * 1000)
-    public void runEvery25min() {
-        test.getEmployees();
-    }
+//    @Scheduled(fixedRate = 25 * 60  * 1000)
+//    public void runEvery25min() {
+//        test.getEmployees();
+//    }
 }

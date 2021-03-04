@@ -16,10 +16,10 @@ public class Test {
         return ResponseEntity.ok("hello");
     }
 
-    public void getEmployees() {
-        final String uri = "https://choyxana.herokuapp.com/api/hi";
-        RestTemplate restTemplate = new RestTemplate();
-        String result = restTemplate.getForObject(uri, String.class);
-        System.out.println(result);
-    }
+//    public void getEmployees() {
+//        final String uri = "https://choyxana.herokuapp.com/api/hi";
+//        RestTemplate restTemplate = new RestTemplate();
+//        String result = restTemplate.getForObject(uri, String.class);
+//        System.out.println(result);
+//    }
 }
