@@ -185,12 +185,12 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return "chayxona_bot";
+        return "Choyxona_gap_bot";
     }
 
     @Override
     public String getBotToken() {
-        return "1466324606:AAENdFg5SmDSexIsCYLzYZI7xHQb8Z9g8Vs";
+        return "1266551708:AAE33dmNK06l-OEIzaLVn2Nhh00LatKclvc";
     }
 
 }
