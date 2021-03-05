@@ -14,39 +14,39 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
 
     @Autowired
-    ProductService roomService;
+    ProductService productService;
 
     @GetMapping("/get")
     public HttpEntity<?> getMonth() {
-        return ResponseEntity.ok(new ApiResponse("ok", true, roomService.list()));
+        return ResponseEntity.ok(new ApiResponse("ok", true, productService.list()));
     }
 
     @PostMapping("/addAndEdit")
     public HttpEntity<?> addMonth(@RequestBody Product product) {
-        roomService.saveEdit(product);
+        productService.saveEdit(product);
         return ResponseEntity.ok("ok");
     }
 
     @DeleteMapping("/delete/{id}")
-    public HttpEntity<?> delete(@PathVariable int id) {
-        roomService.delete(id);
+    public HttpEntity<?> delete(@PathVariable long id) {
+        productService.delete(id);
         return ResponseEntity.ok("ok");
     }
 
     @GetMapping("/getKg")
     public HttpEntity<?> getMonthKg() {
-        return ResponseEntity.ok(new ApiResponse("ok", true, roomService.listKg()));
+        return ResponseEntity.ok(new ApiResponse("ok", true, productService.listKg()));
     }
 
     @PostMapping("/addAndEditKg")
     public HttpEntity<?> addMonthKg(@RequestBody ProductKg productKg) {
-        roomService.saveEditKg(productKg);
+        productService.saveEditKg(productKg);
         return ResponseEntity.ok("ok");
     }
 
     @DeleteMapping("/deleteKg/{id}")
-    public HttpEntity<?> deleteKg(@PathVariable int id) {
-        roomService.delete(id);
+    public HttpEntity<?> deleteKg(@PathVariable long id) {
+        productService.deleteKg(id);
         return ResponseEntity.ok("ok");
     }
 
